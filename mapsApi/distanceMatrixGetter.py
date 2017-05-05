@@ -25,15 +25,38 @@ def readstudentdata():
     new_path = os.path.relpath('..\\studentsByOA.csv', cur_path)
     return pd.read_csv(new_path)
 
+# ========== End function definitions ==========
+
+# Load in the data - output areas, lat/long, number of students
+logging.info("Reading student data...")
+studentData = readstudentdata()
+fromToMatrix = pd.DataFrame(columns=studentData["oa11"], index=studentData["oa11"])
+fromToMatrix = fromToMatrix.fillna(-1)
+
+logging.info("Done. Creating initial distance dataframe...")
+
+# Create the initial distance dataframe, filling the top half with 1's and the diagonal with 0's
+# todo is this step even necessary?
+for idx1 in range(0, fromToMatrix.index.size):
+    fromToMatrix.iloc[idx1, idx1] = 0
+    for idx2 in range(idx1+1, fromToMatrix.index.size):
+        fromToMatrix.iloc[idx1, idx2] = 1
+
+apiMatrix = []
+# Need a separate loop to create the origin/destination strings for the API
+for idx1 in range(0, fromToMatrix.index.size):
+    destString = ""
+    for idx2 in range(0, fromToMatrix.index.size):
+        if idx1 != idx2:
+            destString += str(studentData.iloc[idx2]["lat"]) + "," + str(studentData.iloc[idx2]["long"]) + "|"
+    originString = str(studentData.iloc[idx1]["lat"]) + "," + str(studentData.iloc[idx1]["long"])
+    apiMatrix += [[originString, destString]]
+
+logging.info("Done.")
+
 
 # Start google maps session
 gmaps = googlemaps.Client(key=getkey())
-
-# Load in the data
-studentData = readstudentdata()
-
-destinations = "54.008102,-1.536223|54.002248,-1.522599|53.9983792,-1.509521"
-origins = destinations
 
 matrix = gmaps.distance_matrix(origins, destinations, units="metric")
 newmat = json_normalize(matrix, ['rows', 'elements'])
