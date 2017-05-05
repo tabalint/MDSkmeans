@@ -5,17 +5,17 @@ Method returns pandas array of dist mat
 
 import logging
 import googlemaps
-import globalConstants
+import globalConstants as gc
 import pandas as pd
 from pandas.io.json import json_normalize
 import os
 
 # Set up logger
-logging.basicConfig(level=globalConstants.loggingLevel, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(level=gc.loggingLevel, format='%(asctime)s - %(levelname)s - %(message)s')
 
 # Read API key from file
 def getkey():
-    f = open(globalConstants.dropboxPath + "MDSproject/mapsDistMatAPIkey.txt", 'r')
+    f = open(gc.dropboxPath + "MDSproject/mapsDistMatAPIkey.txt", 'r')
     mapsKey = f.readline()
     f.close()
     return mapsKey
@@ -27,13 +27,15 @@ def readstudentdata():
 
 # ========== End function definitions ==========
 
+logging.info("Beginning processing to generate distance matrix")
+
 # Load in the data - output areas, lat/long, number of students
-logging.info("Reading student data...")
+logging.debug("Reading student data...")
 studentData = readstudentdata()
 fromToMatrix = pd.DataFrame(columns=studentData["oa11"], index=studentData["oa11"])
 fromToMatrix = fromToMatrix.fillna(-1)
 
-logging.info("Done. Creating initial distance dataframe...")
+logging.debug("Done. Creating initial distance dataframe...")
 
 # Create the initial distance dataframe, filling the top half with 1's and the diagonal with 0's
 # todo is this step even necessary?
@@ -52,7 +54,7 @@ for idx1 in range(0, fromToMatrix.index.size):
     originString = str(studentData.iloc[idx1]["lat"]) + "," + str(studentData.iloc[idx1]["long"])
     apiMatrix += [[originString, destString]]
 
-logging.info("Done.")
+logging.debug("Done.")
 
 
 # Start google maps session
