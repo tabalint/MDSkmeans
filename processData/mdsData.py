@@ -8,6 +8,7 @@ from sklearn import manifold, utils
 import pandas as pd
 import os
 
+
 # Get the student/postcode/OA data from the flat file
 def readstudentdata():
     cur_path = os.path.dirname(__file__)
@@ -24,14 +25,14 @@ inData = pd.read_csv("distancematrix.csv", header=0, index_col="oa11")
 symmMatrix = utils.check_symmetric(inData.as_matrix())
 
 mds = manifold.MDS(n_components=2, max_iter=3000, eps=1e-4, random_state=None,
-                            dissimilarity="precomputed", n_jobs=1, metric=True)
+                   dissimilarity="precomputed", n_jobs=1, metric=True)
 coords = mds.fit(symmMatrix).embedding_
 
 oldData = readstudentdata()
 oldData = oldData.set_index("oa11")
-coordsDF = pd.DataFrame(data = coords, index = inData.index.values)
-oldData.loc[:,"fakex"] = pd.Series(coordsDF.loc[:,0], index = inData.index.values)
-oldData.loc[:,"fakey"] = pd.Series(coordsDF.loc[:,1], index = inData.index.values)
+coordsDF = pd.DataFrame(data=coords, index=inData.index.values)
+oldData.loc[:, "fakex"] = pd.Series(coordsDF.loc[:, 0], index=inData.index.values)
+oldData.loc[:, "fakey"] = pd.Series(coordsDF.loc[:, 1], index=inData.index.values)
 
 oldData.to_csv("mdsCoords.csv")
 
