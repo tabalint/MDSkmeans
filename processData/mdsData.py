@@ -15,7 +15,6 @@ def readstudentdata():
     new_path = os.path.relpath('..\\studentsByOA.csv', cur_path)
     return pd.read_csv(new_path)
 
-### End function definitions
 
 inData = pd.read_csv("distancematrix.csv", header=0, index_col="oa11")
 
@@ -36,4 +35,4 @@ oldData.loc[:, "fakey"] = pd.Series(coordsDF.loc[:, 1], index=inData.index.value
 
 oldData.to_csv("mdsCoords.csv")
 
-print "done!"
+print("done!")
